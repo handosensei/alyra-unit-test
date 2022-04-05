@@ -125,14 +125,13 @@ contract("Voting", accounts => {
       )
     });
 
-    /*
-    it("...proposal vote not found.", async () => {
-
+    it("...proposal vote growth up.", async () => {
+      await votingInstance.setVote(3, {from: accounts[2]});
+      let proposal = await votingInstance.getOneProposal(3, {from: owner});
+      expect(new BN(proposal.voteCount)).to.be.bignumber.equal(new BN(2));
     });
+    /*
     
-    
-    
-    it("...proposal vote growth up.", async () => {});
     it("...vote is log.", async () => {});
   
     // startProposalsRegistering
