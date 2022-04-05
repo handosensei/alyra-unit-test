@@ -86,7 +86,14 @@ contract("Voting", accounts => {
         "Vous ne pouvez pas ne rien proposer",
       )
     });
-    
+
+    it("...add proposal to test.", async () => {
+      await votingInstance.addProposal('proposition3', {from: owner});
+      await votingInstance.addProposal('proposition4', {from: owner});
+      await votingInstance.addProposal('proposition5', {from: owner});
+      await votingInstance.addProposal('proposition6', {from: owner});
+    });
+  
     // setVote
     it("...bad workflow status.", async () => {
       expectRevert(
@@ -94,16 +101,21 @@ contract("Voting", accounts => {
         'Voting session havent started yet',
       );
     });
-    
-    it("...voter has voted.", async () => {
+    it("...start vote session.", async () => {
       await votingInstance.endProposalsRegistering({from: owner});
       await votingInstance.startVotingSession({from: owner});
-      
+    });
+
+    it("...voter has voted.", async () => {
       expectEvent(
-        await votingInstance.setVote(0, {from: accounts[1]}),
+        await votingInstance.setVote(3, {from: accounts[1]}),
         "Voted",
-        {voter: accounts[1], proposalId: new BN(0)}
+        {voter: accounts[1], proposalId: new BN(3)}
       );
+
+      let vote = await votingInstance.getVoter(accounts[1]);
+      expect(vote.hasVoted).to.equal(true);
+      expect(new BN(vote.votedProposalId)).to.be.bignumber.equal(new BN(3));
     });
 
     it("...user already voted.", async () => {
@@ -112,10 +124,13 @@ contract("Voting", accounts => {
         'You have already voted',
       )
     });
-    /*  
+
+    /*
+    it("...proposal vote not found.", async () => {
+
+    });
     
-    it("...proposal vote not found.", async () => {});
-    it("...vote registered.", async () => {});
+    
     
     it("...proposal vote growth up.", async () => {});
     it("...vote is log.", async () => {});
