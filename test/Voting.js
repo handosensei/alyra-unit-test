@@ -67,9 +67,6 @@ contract("Voting", accounts => {
     });
     
     it("...new proposal saved.", async () => {
-      const status = await votingInstance.workflowStatus();
-      console.log(status.toString());
-
       await votingInstance.startProposalsRegistering({from: owner});
       expectEvent(
         await votingInstance.addProposal('proposition2', {from: owner}),
@@ -95,13 +92,31 @@ contract("Voting", accounts => {
       expectRevert(
         votingInstance.setVote(1, {from: accounts[1]}),
         'Voting session havent started yet',
+      );
+    });
+    
+    it("...voter has voted.", async () => {
+      await votingInstance.endProposalsRegistering({from: owner});
+      await votingInstance.startVotingSession({from: owner});
+      
+      expectEvent(
+        await votingInstance.setVote(0, {from: accounts[1]}),
+        "Voted",
+        {voter: accounts[1], proposalId: new BN(0)}
+      );
+    });
+
+    it("...user already voted.", async () => {
+      expectRevert(
+        votingInstance.setVote(0, {from: accounts[1]}),
+        'You have already voted',
       )
     });
-      /*  
-    it("...user already voted.", async () => {});
+    /*  
+    
     it("...proposal vote not found.", async () => {});
     it("...vote registered.", async () => {});
-    it("...voter has voted.", async () => {});
+    
     it("...proposal vote growth up.", async () => {});
     it("...vote is log.", async () => {});
   
