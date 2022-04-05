@@ -44,9 +44,6 @@ contract("Voting", accounts => {
       );
     });
 
-
-    
-    
     it("...voter is registered.", async () => {
       await votingInstance.addVoter(accounts[2], {from: owner});
       let voter = await votingInstance.getVoter.call(accounts[2], {from: owner});
@@ -68,18 +65,18 @@ contract("Voting", accounts => {
         "Proposals are not allowed yet",
       );
     });
-/**
-    it("...owner start proposal registering.", async () => {
+
+    it("...owner start proposal registering workflow.", async () => {
       expectEvent(
         await votingInstance.startProposalsRegistering({from: owner}),
         'WorkflowStatusChange',
         {
-          previousStatus:,
-          newStatus:''
+          previousStatus: new BN(votingInstance.workflowStatus.RegisteringVoters),
+          newStatus:      new BN(1)
         }
       );
     });
-*/
+
     it("...new proposal saved.", async () => {
       expectEvent(
         await votingInstance.addProposal('proposition2', {from: owner}),
@@ -106,7 +103,7 @@ contract("Voting", accounts => {
       await votingInstance.addProposal('proposition5', {from: owner});
       await votingInstance.addProposal('proposition6', {from: owner});
     });
-  
+
     // setVote
     it("...bad workflow status.", async () => {
       expectRevert(
@@ -114,9 +111,25 @@ contract("Voting", accounts => {
         'Voting session havent started yet',
       );
     });
+    
     it("...start vote session.", async () => {
-      await votingInstance.endProposalsRegistering({from: owner});
-      await votingInstance.startVotingSession({from: owner});
+      expectEvent(
+        await votingInstance.endProposalsRegistering({from: owner}),
+        'WorkflowStatusChange',
+        {
+          previousStatus: new BN(1),
+          newStatus:      new BN(2)
+        }
+      );
+
+      expectEvent(
+        await votingInstance.startVotingSession({from: owner}),
+        'WorkflowStatusChange',
+        {
+          previousStatus: new BN(2),
+          newStatus:      new BN(3)
+        }
+      );
     });
 
     it("...voter has voted.", async () => {
@@ -146,8 +159,6 @@ contract("Voting", accounts => {
     /*
     
     // startProposalsRegistering
-    
-    
     it("...start proposal registering is log.", async () => {});
   
     // endProposalsRegistering
