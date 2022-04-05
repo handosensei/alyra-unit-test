@@ -1,6 +1,7 @@
 const Voting = artifacts.require("./Voting.sol");
 const { BN, expectRevert, expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
+const { exit } = require('process');
 
 contract("Voting", accounts => {
   const owner = accounts[0];
@@ -66,6 +67,9 @@ contract("Voting", accounts => {
     });
     
     it("...new proposal saved.", async () => {
+      const status = await votingInstance.workflowStatus();
+      console.log(status.toString());
+
       await votingInstance.startProposalsRegistering({from: owner});
       expectEvent(
         await votingInstance.addProposal('proposition2', {from: owner}),
@@ -74,31 +78,22 @@ contract("Voting", accounts => {
       );
     });
 
+    it("...should get exist proposal.", async () => {
+      let proposal = await votingInstance.getOneProposal.call(0, {from: owner});
+      expect(proposal.description).to.be.equal('proposition2');
+    })
+
     it("...proposal cant be empty.", async () => {
       expectRevert(
         votingInstance.addProposal('', {from: owner}),
         "Vous ne pouvez pas ne rien proposer",
       )
     });
-/*
-  it("...should get exist proposal.", async () => {
-    await votingInstance.startProposalsRegistering.call({from: owner});
-    await votingInstance.addProposal.call('proposition2', {from: owner});
-    let proposal = await votingInstance.getOneProposal.call(0, {from: owner});
-    expect(proposal).exist;
-  })
-
-  //it("...new proposal description save.", async () => {});
-  */
-  // getOneProposal
-  
-  /*
-  it("...proposal not found.", async () => {});
-  
     
   
     // setVote
     it("...bad workflow status.", async () => {});
+      /*  
     it("...user already voted.", async () => {});
     it("...proposal vote not found.", async () => {});
     it("...vote registered.", async () => {});
@@ -132,7 +127,8 @@ contract("Voting", accounts => {
     it("...workflow status change to votes tallied");
     it("...workflow status change to votes tallied");
     */
-
+//const status = await votingInstance.workflowStatus();
+// console.log(status.toString());
   // end describe  
   });
 // end contracts  
