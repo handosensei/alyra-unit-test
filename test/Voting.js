@@ -1,7 +1,6 @@
 const Voting = artifacts.require("./Voting.sol");
 const { BN, expectRevert, expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
-const { exit } = require('process');
 
 contract("Voting", accounts => {
   const owner = accounts[0];
@@ -156,34 +155,41 @@ contract("Voting", accounts => {
       let proposal = await votingInstance.getOneProposal(3, {from: owner});
       expect(new BN(proposal.voteCount)).to.be.bignumber.equal(new BN(2));
     });
-    /*
-    
-    // startProposalsRegistering
-    it("...start proposal registering is log.", async () => {});
-  
-    // endProposalsRegistering
-    it("...only owner can end proposal registering.", async () => {});
-    it("...owner end proposal registering.", async () => {});
-    it("...end proposal registering is log.", async () => {});
-  
-    // startVotingSession
-    it("...only owner can start voting session.", async () => {});
-    it("...owner start voting session.", async () => {});
-    it("...start voting session is log.", async () => {});
-  
-    // endVotingSession
-    it("...only owner can end voting session.", async () => {});
-    it("...owner end voting session.", async () => {});
-    it("...end voting session is log.", async () => {});
   
     // tallyVotes
-    it("...voting session is not finished.", async () => {});
-    it("...tally votes is log.", async () => {});
-    it("...workflow status change to votes tallied");
-    it("...workflow status change to votes tallied");
-    */
-//const status = await votingInstance.workflowStatus();
-// console.log(status.toString());
+    it("...voting session is not finished.", async () => {
+      expectRevert(
+        votingInstance.tallyVotes({from: owner}),
+        'Current status is not voting session ended',
+      )
+    });
+
+    it("...workflow status change to votes tallied", async () => {
+      expectEvent(
+        await votingInstance.endVotingSession({from: owner}),
+        'WorkflowStatusChange',
+        {
+          previousStatus: new BN(3),
+          newStatus:      new BN(4)
+        }
+      );
+    });
+
+    it("...tally votes is log.", async () => {
+      expectEvent(
+        await votingInstance.tallyVotes({from: owner}),
+        'WorkflowStatusChange',
+        {
+          previousStatus: new BN(4),
+          newStatus:      new BN(5)
+        }
+      );
+      const winningProposalID = await votingInstance.winningProposalID();
+      expect(new BN(winningProposalID)).to.be.bignumber.equal(new BN(3));
+    });
+  
+  //const status = await votingInstance.workflowStatus();
+  // console.log(status.toString());
   // end describe  
   });
 // end contracts  
