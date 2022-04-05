@@ -90,9 +90,13 @@ contract("Voting", accounts => {
       )
     });
     
-  
     // setVote
-    it("...bad workflow status.", async () => {});
+    it("...bad workflow status.", async () => {
+      expectRevert(
+        votingInstance.setVote(1, {from: accounts[1]}),
+        'Voting session havent started yet',
+      )
+    });
       /*  
     it("...user already voted.", async () => {});
     it("...proposal vote not found.", async () => {});
