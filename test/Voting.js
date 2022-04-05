@@ -44,6 +44,9 @@ contract("Voting", accounts => {
       );
     });
 
+
+    
+    
     it("...voter is registered.", async () => {
       await votingInstance.addVoter(accounts[2], {from: owner});
       let voter = await votingInstance.getVoter.call(accounts[2], {from: owner});
@@ -65,9 +68,19 @@ contract("Voting", accounts => {
         "Proposals are not allowed yet",
       );
     });
-    
+/**
+    it("...owner start proposal registering.", async () => {
+      expectEvent(
+        await votingInstance.startProposalsRegistering({from: owner}),
+        'WorkflowStatusChange',
+        {
+          previousStatus:,
+          newStatus:''
+        }
+      );
+    });
+*/
     it("...new proposal saved.", async () => {
-      await votingInstance.startProposalsRegistering({from: owner});
       expectEvent(
         await votingInstance.addProposal('proposition2', {from: owner}),
         "ProposalRegistered",
@@ -132,11 +145,9 @@ contract("Voting", accounts => {
     });
     /*
     
-    it("...vote is log.", async () => {});
-  
     // startProposalsRegistering
-    it("...only owner can start proposal registering.", async () => {});
-    it("...owner start proposal registering.", async () => {});
+    
+    
     it("...start proposal registering is log.", async () => {});
   
     // endProposalsRegistering
